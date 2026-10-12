@@ -1,0 +1,6 @@
+# Базовый сценарий: заглушки и exit
+ls
+ls -l /tmp
+cd docs
+cd a b c
+exit

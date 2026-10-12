@@ -2,6 +2,7 @@
 
 import getpass
 import socket
+from typing import Optional
 
 FALLBACK_USER = "user"
 FALLBACK_HOST = "localhost"
@@ -27,3 +28,16 @@ def default_prompt() -> str:
     user = get_username()
     host = get_hostname()
     return f"{user}@{host}:{HOME_DIR_MARK}{PROMPT_SUFFIX} "
+
+
+def resolve_prompt(custom: Optional[str]) -> str:
+    """Возвращает итоговое приглашение.
+
+    Пользовательское приглашение дополняется пробелом, если оно
+    не заканчивается пробельным символом. Без него — приглашение ОС.
+    """
+    if custom is None:
+        return default_prompt()
+    if custom and not custom[-1].isspace():
+        return custom + " "
+    return custom

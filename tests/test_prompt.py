@@ -26,5 +26,26 @@ class DefaultPromptTest(unittest.TestCase):
             self.assertEqual(prompt.get_hostname(), prompt.FALLBACK_HOST)
 
 
+class ResolvePromptTest(unittest.TestCase):
+    """Проверки выбора итогового приглашения."""
+
+    def test_custom_gets_space(self):
+        """К пользовательскому приглашению добавляется пробел."""
+        self.assertEqual(prompt.resolve_prompt("my>"), "my> ")
+
+    def test_custom_keeps_space(self):
+        """Пробел в конце не дублируется."""
+        self.assertEqual(prompt.resolve_prompt("my> "), "my> ")
+
+    def test_empty_custom(self):
+        """Пустое приглашение допустимо."""
+        self.assertEqual(prompt.resolve_prompt(""), "")
+
+    def test_default(self):
+        """Без параметра используется приглашение ОС."""
+        with mock.patch.object(prompt, "default_prompt", return_value="d$ "):
+            self.assertEqual(prompt.resolve_prompt(None), "d$ ")
+
+
 if __name__ == "__main__":
     unittest.main()

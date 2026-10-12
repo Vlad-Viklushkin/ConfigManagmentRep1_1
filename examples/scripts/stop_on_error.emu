@@ -1,0 +1,4 @@
+# Сценарий останавливается на первой ошибке
+ls first
+foo bar
+ls never_printed

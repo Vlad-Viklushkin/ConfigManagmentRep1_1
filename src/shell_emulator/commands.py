@@ -1,0 +1,46 @@
+"""Реализация команд эмулятора."""
+
+from dataclasses import dataclass
+from typing import Callable, Dict, List
+
+from shell_emulator.errors import CommandError
+
+
+@dataclass
+class Session:
+    """Состояние сеанса эмулятора."""
+
+    running: bool = True
+
+
+Handler = Callable[[Session, List[str]], str]
+
+
+def _stub(name: str, args: List[str]) -> str:
+    """Формирует вывод заглушки: имя команды и её аргументы."""
+    return " ".join([name] + args)
+
+
+def cmd_ls(session: Session, args: List[str]) -> str:
+    """Команда-заглушка `ls`: выводит своё имя и аргументы."""
+    return _stub("ls", args)
+
+
+def cmd_cd(session: Session, args: List[str]) -> str:
+    """Команда-заглушка `cd`: выводит своё имя и аргументы."""
+    return _stub("cd", args)
+
+
+def cmd_exit(session: Session, args: List[str]) -> str:
+    """Команда `exit`: завершает работу эмулятора."""
+    if args:
+        raise CommandError("exit: too many arguments")
+    session.running = False
+    return ""
+
+
+COMMANDS: Dict[str, Handler] = {
+    "ls": cmd_ls,
+    "cd": cmd_cd,
+    "exit": cmd_exit,
+}

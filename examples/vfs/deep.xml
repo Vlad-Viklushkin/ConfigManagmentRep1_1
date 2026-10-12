@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vfs>
+  <dir name="home">
+    <dir name="user">
+      <dir name="docs">
+        <file name="report.txt">Quarterly report</file>
+        <dir name="archive">
+          <file name="old.bin" encoding="base64">3q2+7w==</file>
+        </dir>
+      </dir>
+      <file name=".profile">export PATH=/bin</file>
+    </dir>
+  </dir>
+  <dir name="etc">
+    <file name="hostname">vfs-host</file>
+  </dir>
+  <dir name="tmp"/>
+</vfs>

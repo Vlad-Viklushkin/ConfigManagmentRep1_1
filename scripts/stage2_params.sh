@@ -22,5 +22,5 @@ emulator --script "$EX/scripts/missing.emu"
 echo "код завершения: $?"
 
 title "6. Все параметры вместе"
-emulator --vfs "$EX/vfs/none.xml" --prompt "all>" \
+emulator --vfs "$EX/vfs/minimal.xml" --prompt "all>" \
     --script "$EX/scripts/basic.emu"

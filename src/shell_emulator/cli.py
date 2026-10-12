@@ -10,9 +10,11 @@ from shell_emulator.prompt import resolve_prompt
 from shell_emulator.repl import run_repl
 from shell_emulator.script import read_script, run_script
 from shell_emulator.shell import Shell
+from shell_emulator.vfs_xml import load_vfs
 
 EXIT_OK = 0
 EXIT_SCRIPT_ERROR = 1
+EXIT_VFS_ERROR = 2
 
 
 def _run_start_script(
@@ -40,7 +42,14 @@ def main(
     config = parse_args(argv)
     for line in format_debug(config):
         stdout.write(f"{line}\n")
-    shell = Shell(Session())
+    session = Session()
+    try:
+        if config.vfs_path is not None:
+            session.vfs = load_vfs(config.vfs_path)
+    except EmulatorError as error:
+        stdout.write(f"error: {error}\n")
+        return EXIT_VFS_ERROR
+    shell = Shell(session)
     prompt = resolve_prompt(config.prompt)
     if not _run_start_script(shell, config, prompt, stdout):
         return EXIT_SCRIPT_ERROR

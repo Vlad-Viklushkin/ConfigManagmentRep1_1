@@ -7,3 +7,7 @@ class EmulatorError(Exception):
 
 class CommandError(EmulatorError):
     """Ошибка выполнения команды (неизвестная команда, неверные аргументы)."""
+
+
+class VfsError(EmulatorError):
+    """Ошибка загрузки или разбора виртуальной файловой системы."""

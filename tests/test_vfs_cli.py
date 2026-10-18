@@ -8,7 +8,7 @@ from pathlib import Path
 
 from shell_emulator.cli import EXIT_OK, EXIT_SCRIPT_ERROR, EXIT_VFS_ERROR
 from shell_emulator.cli import main
-from shell_emulator.commands import Session
+from shell_emulator.session import Session
 from shell_emulator.errors import CommandError
 from shell_emulator.shell import Shell
 from shell_emulator.vfs_xml import load_vfs
@@ -80,11 +80,11 @@ class MainVfsTest(unittest.TestCase):
 
     def test_full_script(self):
         """Полный стартовый скрипт выполняется без ошибок."""
-        argv = ["--vfs", str(VFS_DIR / "deep.xml"),
+        argv = ["--vfs", str(VFS_DIR / "deep.xml"), "--prompt", "vfs>",
                 "--script", str(SCRIPTS / "stage3_full.emu")]
         code, out = call(argv)
         self.assertEqual(code, EXIT_OK)
-        self.assertIn("cd /home/user\ncd /home/user\n", out)
+        self.assertIn("vfs> cd /home/user\nvfs> cd\n", out)
 
     def test_error_script(self):
         """Скрипт с ошибкой в конце останавливается с кодом 1."""

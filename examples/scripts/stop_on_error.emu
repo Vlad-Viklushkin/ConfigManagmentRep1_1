@@ -1,4 +1,4 @@
 # Сценарий останавливается на первой ошибке
-ls first
+ls
 foo bar
 ls never_printed

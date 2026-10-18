@@ -5,7 +5,7 @@
 EX="$ROOT_DIR/examples"
 
 title "1. Без параметров (интерактивный ввод из stdin)"
-printf 'ls\ncd /tmp\nexit\n' | emulator
+printf 'ls\ncd /\nexit\n' | emulator
 
 title "2. Параметр --prompt"
 printf 'ls\nexit\n' | emulator --prompt "custom>"

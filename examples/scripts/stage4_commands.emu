@@ -1,0 +1,24 @@
+# Этап 4: все режимы ls, cd, tree, uname (запускать с deep.xml)
+ls
+ls -a /home/user
+ls -l /home/user/docs
+ls -la /home/user
+ls /etc /home
+ls /etc/hostname
+cd /home/user
+ls docs
+cd docs/archive
+ls -l
+cd ../..
+ls ..
+cd
+tree
+tree -a /home
+tree /home/user/docs/archive
+uname
+uname -a
+uname -m
+uname -r
+uname -n
+uname -v
+exit

@@ -1,0 +1,5 @@
+# Этап 4: ошибка в конце останавливает скрипт
+cd /home/user
+ls docs
+cd /home/nobody
+ls never_printed

@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from shell_emulator.cli import EXIT_OK, EXIT_SCRIPT_ERROR, main
-from shell_emulator.commands import Session
+from shell_emulator.session import Session
 from shell_emulator.errors import EmulatorError
 from shell_emulator.script import read_script, run_script
 from shell_emulator.shell import Shell
@@ -29,21 +29,21 @@ class RunScriptTest(unittest.TestCase):
 
     def test_echo_input_and_output(self):
         """На экране отображаются и ввод, и вывод."""
-        ok, out = run(["ls a", "cd b"])
+        ok, out = run(["vfs-info", "cd /"])
         self.assertTrue(ok)
-        self.assertEqual(out, "> ls a\nls a\n> cd b\ncd b\n")
+        self.assertEqual(out, "> vfs-info\nVFS: not loaded\n> cd /\n")
 
     def test_stops_on_first_error(self):
         """Скрипт останавливается на первой ошибке."""
         ok, out = run(["ls", "foo", "cd never"])
         self.assertFalse(ok)
-        self.assertEqual(out, "> ls\nls\n> foo\nfoo: command not found\n")
+        self.assertEqual(out, "> ls\n> foo\nfoo: command not found\n")
 
     def test_comments_and_blank(self):
         """Пустые строки и комментарии пропускаются."""
         ok, out = run(["", "# note", "  ", "ls"])
         self.assertTrue(ok)
-        self.assertEqual(out, "> ls\nls\n")
+        self.assertEqual(out, "> ls\n")
 
     def test_exit_stops_script(self):
         """После exit остальные строки не выполняются."""
@@ -85,15 +85,15 @@ class MainScriptTest(unittest.TestCase):
 
     def test_custom_prompt(self):
         """Пользовательское приглашение используется в REPL."""
-        _, out = self.call(["--prompt", "me>"], "ls\nexit\n")
-        self.assertIn("me> ls\n", out)
+        _, out = self.call(["--prompt", "me>"], "vfs-info\nexit\n")
+        self.assertIn("me> VFS: not loaded\n", out)
 
     def test_script_then_exit(self):
         """Скрипт с exit завершает работу без REPL."""
         script = str(SCRIPTS / "basic.emu")
         code, out = self.call(["--prompt", "$", "--script", script])
         self.assertEqual(code, EXIT_OK)
-        self.assertIn("$ ls -l /tmp\nls -l /tmp\n", out)
+        self.assertIn("$ ls\n$ cd /\n$ cd\n", out)
 
     def test_script_error_code(self):
         """Ошибка в скрипте даёт код EXIT_SCRIPT_ERROR."""
@@ -114,10 +114,10 @@ class MainScriptTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "s.emu")
             with open(path, "w", encoding="utf-8") as handle:
-                handle.write("ls one\n")
-            code, out = self.call(["--script", path], "cd two\nexit\n")
+                handle.write("ls\n")
+            code, out = self.call(["--script", path], "vfs-info\nexit\n")
         self.assertEqual(code, EXIT_OK)
-        self.assertIn("cd two\n", out)
+        self.assertIn("VFS: not loaded\n", out)
 
 
 if __name__ == "__main__":

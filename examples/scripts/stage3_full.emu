@@ -3,7 +3,6 @@
 vfs-info
 ls
 ls -l /home
-ls a b
 cd /home/user
 cd
 vfs-info

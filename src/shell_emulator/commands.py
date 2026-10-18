@@ -1,36 +1,14 @@
-"""Реализация команд эмулятора."""
+"""Реестр команд эмулятора и простые команды."""
 
-from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List
 
+from shell_emulator.cmd_nav import cmd_cd, cmd_ls
+from shell_emulator.cmd_sys import cmd_uname
+from shell_emulator.cmd_tree import cmd_tree
 from shell_emulator.errors import CommandError
-from shell_emulator.vfs import Vfs
-
-
-@dataclass
-class Session:
-    """Состояние сеанса эмулятора."""
-
-    running: bool = True
-    vfs: Optional[Vfs] = None
-
+from shell_emulator.session import Session
 
 Handler = Callable[[Session, List[str]], str]
-
-
-def _stub(name: str, args: List[str]) -> str:
-    """Формирует вывод заглушки: имя команды и её аргументы."""
-    return " ".join([name] + args)
-
-
-def cmd_ls(session: Session, args: List[str]) -> str:
-    """Команда-заглушка `ls`: выводит своё имя и аргументы."""
-    return _stub("ls", args)
-
-
-def cmd_cd(session: Session, args: List[str]) -> str:
-    """Команда-заглушка `cd`: выводит своё имя и аргументы."""
-    return _stub("cd", args)
 
 
 def cmd_exit(session: Session, args: List[str]) -> str:
@@ -58,6 +36,8 @@ def cmd_vfs_info(session: Session, args: List[str]) -> str:
 COMMANDS: Dict[str, Handler] = {
     "ls": cmd_ls,
     "cd": cmd_cd,
+    "tree": cmd_tree,
+    "uname": cmd_uname,
     "exit": cmd_exit,
     "vfs-info": cmd_vfs_info,
 }

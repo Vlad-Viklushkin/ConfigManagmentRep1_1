@@ -1,31 +1,19 @@
-"""Тесты выполнения команд."""
+"""Тесты ядра: диспетчеризация, exit и ошибки."""
 
 import unittest
 
-from shell_emulator.commands import Session
 from shell_emulator.errors import CommandError
+from shell_emulator.session import Session
 from shell_emulator.shell import Shell
 
 
 class ShellTest(unittest.TestCase):
-    """Проверки команд-заглушек, exit и обработки ошибок."""
+    """Проверки выполнения строк и обработки ошибок."""
 
     def setUp(self):
         """Создаёт оболочку с новым сеансом."""
         self.session = Session()
         self.shell = Shell(self.session)
-
-    def test_ls_stub(self):
-        """ls выводит своё имя и аргументы."""
-        self.assertEqual(self.shell.execute("ls -l /tmp"), "ls -l /tmp")
-
-    def test_ls_without_args(self):
-        """ls без аргументов выводит только имя."""
-        self.assertEqual(self.shell.execute("ls"), "ls")
-
-    def test_cd_stub(self):
-        """cd выводит своё имя и аргументы."""
-        self.assertEqual(self.shell.execute("cd a b"), "cd a b")
 
     def test_empty_line(self):
         """Пустая строка не вызывает ошибок и ничего не выводит."""
@@ -48,6 +36,13 @@ class ShellTest(unittest.TestCase):
             self.shell.execute("exit 1")
         self.assertEqual(str(ctx.exception), "exit: too many arguments")
         self.assertTrue(self.session.running)
+
+    def test_no_vfs_is_empty(self):
+        """Без VFS эмулятор работает с пустым корнем."""
+        self.assertEqual(self.shell.execute("ls"), "")
+        self.assertEqual(self.shell.execute("cd /"), "")
+        with self.assertRaises(CommandError):
+            self.shell.execute("cd docs")
 
 
 if __name__ == "__main__":

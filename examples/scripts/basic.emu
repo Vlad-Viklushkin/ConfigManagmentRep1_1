@@ -1,6 +1,6 @@
-# Базовый сценарий: заглушки и exit
+# Базовый сценарий: навигация без загруженной VFS и exit
 ls
-ls -l /tmp
-cd docs
-cd a b c
+cd /
+cd
+ls /
 exit

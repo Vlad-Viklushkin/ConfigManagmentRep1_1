@@ -3,7 +3,7 @@
 import sys
 from typing import List, Optional, TextIO
 
-from shell_emulator.commands import Session
+from shell_emulator.session import Session
 from shell_emulator.config import Config, format_debug, parse_args
 from shell_emulator.errors import EmulatorError
 from shell_emulator.prompt import resolve_prompt
@@ -45,7 +45,7 @@ def main(
     session = Session()
     try:
         if config.vfs_path is not None:
-            session.vfs = load_vfs(config.vfs_path)
+            session.attach_vfs(load_vfs(config.vfs_path))
     except EmulatorError as error:
         stdout.write(f"error: {error}\n")
         return EXIT_VFS_ERROR

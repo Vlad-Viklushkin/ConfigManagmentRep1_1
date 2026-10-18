@@ -4,7 +4,7 @@ import io
 import unittest
 
 from shell_emulator.cli import EXIT_OK, main
-from shell_emulator.commands import Session
+from shell_emulator.session import Session
 from shell_emulator.repl import run_repl
 from shell_emulator.shell import Shell
 
@@ -23,8 +23,8 @@ class ReplTest(unittest.TestCase):
 
     def test_dialog(self):
         """Команды выполняются, после exit цикл завершается."""
-        out = run("ls a\ncd b\nexit\nls never\n")
-        self.assertEqual(out, "> ls a\n> cd b\n> ")
+        out = run("vfs-info\ncd /\nexit\nvfs-info\n")
+        self.assertEqual(out, "> VFS: not loaded\n> > ")
 
     def test_error_message(self):
         """Ошибки выводятся в диалог и не прерывают работу."""
@@ -34,7 +34,7 @@ class ReplTest(unittest.TestCase):
 
     def test_eof(self):
         """Конец ввода завершает цикл."""
-        self.assertEqual(run("ls\n"), "> ls\n> \n")
+        self.assertEqual(run("vfs-info\n"), "> VFS: not loaded\n> \n")
 
     def test_empty_lines(self):
         """Пустые строки пропускаются."""

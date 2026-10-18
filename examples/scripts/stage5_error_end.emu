@@ -1,0 +1,5 @@
+# Этап 5: ошибка в конце останавливает скрипт
+rmdir /tmp
+ls
+rmdir /home
+ls never_printed

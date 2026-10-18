@@ -20,6 +20,8 @@
 3. **VFS** — загрузка VFS из XML (текст и base64, вложенные каталоги),
    всё в памяти.
 4. **Основные команды** — `ls`, `cd` по VFS, `tree`, `uname`.
+5. **Дополнительные команды** — `rm`, `rmdir`, `vfs-load`; изменения
+   VFS происходят только в памяти.
 
 ## Команды
 
@@ -33,6 +35,9 @@
 | `cd [путь]` | Смена текущего каталога; без аргумента — переход в `/` |
 | `tree [-a] [путь]` | Дерево каталога и итог `N directories, M files` |
 | `uname [-a] [-s] [-n] [-r] [-v] [-m]` | Данные реальной ОС; без опций — как `-s` |
+| `rm [-r] [-f] путь...` | Удаляет файлы; с `-r` — и каталоги рекурсивно |
+| `rmdir путь...` | Удаляет пустые каталоги |
+| `vfs-load путь` | Загружает новую VFS с диска вместо текущей |
 | `exit` | Завершает работу эмулятора |
 | `vfs-info` | Служебная: источник VFS, число каталогов и файлов |
 
@@ -63,6 +68,35 @@
 `-r` релиз, `-v` версия, `-m` архитектура, `-a` все поля. Поля
 всегда выводятся в порядке `s n r v m`.
 
+### rm
+
+- без опций удаляет только файлы; каталог — ошибка `Is a directory`;
+- `-r` (или `-R`) удаляет каталог со всем содержимым;
+- `-f` игнорирует несуществующие пути и отсутствие операндов;
+- операнды обрабатываются по порядку, при первой ошибке команда
+  прекращает работу (уже удалённое остаётся удалённым);
+- нельзя удалить корень (`rm -r /` отклоняется), а также текущий
+  каталог и его предков (`Device or resource busy`).
+
+### rmdir
+
+Удаляет только пустые каталоги. Корень, текущий каталог и его предки
+удалить нельзя.
+
+### vfs-load
+
+Загружает VFS из XML-файла (формат ниже) и подключает её вместо
+текущей; текущий каталог становится `/`. Путь — физический, он
+отсчитывается от каталога, откуда запущен эмулятор. Если файл не
+удалось загрузить, прежняя VFS остаётся без изменений. Парсер делит
+ввод по пробелам, поэтому пути с пробелами не поддерживаются.
+Повторная загрузка того же файла возвращает исходное состояние VFS.
+
+### Изменения только в памяти
+
+`rm`, `rmdir` и `vfs-load` меняют только дерево в памяти. XML-файл
+на диске никогда не изменяется и не перезаписывается.
+
 ### Ошибки
 
 | Сообщение | Причина |
@@ -74,6 +108,15 @@
 | `cd: too many arguments`, `tree: too many arguments` | Лишние аргументы |
 | `tree: p: Not a directory` | `tree` для файла |
 | `uname: extra operand 'x'` | Лишний операнд `uname` |
+| `rm: missing operand`, `rmdir: missing operand` | Не указан путь |
+| `rm: cannot remove 'p': No such file or directory` | Путь не найден |
+| `rm: cannot remove 'p': Is a directory` | Каталог без `-r` |
+| `rm: it is dangerous to operate recursively on '/'` | `rm -r /` |
+| `...: Device or resource busy` | Удаляется текущий каталог или его предок |
+| `rmdir: failed to remove 'p': Directory not empty` | Каталог не пуст |
+| `rmdir: failed to remove 'p': Not a directory` | `rmdir` для файла |
+| `vfs-load: missing path`, `vfs-load: too many arguments` | Неверные аргументы |
+| `vfs-load: cannot read VFS ...`, `vfs-load: invalid XML ...` | Файл не найден или некорректен |
 | `exit: too many arguments`, `vfs-info: too many arguments` | Аргументы у команд без аргументов |
 
 Если VFS не загружена, эмулятор работает с пустым корнем.
@@ -173,8 +216,9 @@ PYTHONPATH=src python3 -m shell_emulator --vfs examples/vfs/deep.xml
 | `scripts/stage2_params.sh` | Все параметры командной строки |
 | `scripts/stage3_vfs.sh` | Минимальная VFS, несколько файлов, 3+ уровня вложенности, ошибки загрузки |
 | `scripts/stage4_commands.sh` | Все режимы `ls`, `cd`, `tree`, `uname` и все их ошибки |
+| `scripts/stage5_commands.sh` | Все режимы `rm`, `rmdir`, `vfs-load`, их ошибки и проверка, что XML на диске не меняется |
 
-Запуск: `sh scripts/stage4_commands.sh` (и так же остальные).
+Запуск: `sh scripts/stage5_commands.sh` (и так же остальные).
 
 Стартовые скрипты эмулятора (`examples/scripts/`):
 
@@ -184,6 +228,8 @@ PYTHONPATH=src python3 -m shell_emulator --vfs examples/vfs/deep.xml
 | `stage3_full.emu`, `stage3_error_end.emu` | Этап 3: команды с VFS, ошибка в конце |
 | `stage4_commands.emu` | Этап 4: все режимы команд (с `deep.xml`) |
 | `stage4_error_end.emu` | Этап 4: ошибка в конце останавливает скрипт |
+| `stage5_commands.emu` | Этап 5: все режимы `rm`, `rmdir`, `vfs-load` (из корня репозитория, с `deep.xml`) |
+| `stage5_error_end.emu` | Этап 5: ошибка в конце останавливает скрипт |
 
 ## Примеры использования
 
@@ -212,6 +258,15 @@ vfs> tree /home/user/docs
 1 directory, 2 files
 vfs> uname -sm
 Linux x86_64
+vfs> rm /etc/hostname
+vfs> rmdir /etc
+vfs> rmdir /home
+rmdir: failed to remove '/home': Directory not empty
+vfs> rm -r /home
+vfs> ls
+tmp
+vfs> vfs-load examples/vfs/multi_files.xml
+VFS loaded: examples/vfs/multi_files.xml (0 directories, 4 files)
 vfs> foo
 foo: command not found
 vfs> exit
@@ -225,10 +280,11 @@ src/shell_emulator/   исходный код
   repl.py, script.py  интерактивный режим и стартовый скрипт
   shell.py, parser.py разбор и выполнение строки
   session.py          состояние сеанса (VFS, текущий каталог)
-  commands.py         реестр команд, exit, vfs-info
+  commands.py         реестр команд, exit, vfs-info, vfs-load
   cmd_nav.py          ls, cd
   cmd_tree.py         tree
   cmd_sys.py          uname
+  cmd_edit.py         rm, rmdir
   cmd_util.py         разбор опций, поиск путей
   vfs.py, vfs_xml.py  модель VFS и загрузка из XML
 tests/                тесты (unittest)

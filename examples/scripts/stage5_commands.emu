@@ -1,0 +1,23 @@
+# Этап 5: rm, rmdir, vfs-load (запускать из корня репозитория с deep.xml)
+tree
+rm /etc/hostname
+ls /etc
+rmdir /etc
+rmdir /tmp
+ls
+rm -r /home/user/docs/archive
+tree -a /home
+rm -f /home/user/docs/missing.txt
+rm /home/user/docs/report.txt /home/user/.profile
+rmdir /home/user/docs
+cd /home
+rm -r user
+tree
+cd /
+vfs-load examples/vfs/multi_files.xml
+ls -l
+rm data.bin empty.txt
+ls
+vfs-load examples/vfs/deep.xml
+tree
+exit

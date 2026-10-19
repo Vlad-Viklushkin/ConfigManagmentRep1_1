@@ -16,7 +16,7 @@
 
 import base64
 import binascii
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as et
 from typing import Callable, Dict
 
 from shell_emulator.errors import VfsError
@@ -44,8 +44,8 @@ def load_vfs(path: str) -> Vfs:
 def parse_vfs(data: bytes, source: str) -> Vfs:
     """Разбирает XML-данные и строит VFS."""
     try:
-        root_element = ET.fromstring(data)
-    except ET.ParseError as error:
+        root_element = et.fromstring(data)
+    except et.ParseError as error:
         raise VfsError(f"invalid XML in '{source}': {error}")
     if root_element.tag != ROOT_TAG:
         raise VfsError(
@@ -56,7 +56,7 @@ def parse_vfs(data: bytes, source: str) -> Vfs:
     return Vfs(root=root, source=source)
 
 
-def _fill_directory(node: VfsNode, element: ET.Element) -> None:
+def _fill_directory(node: VfsNode, element: et.Element) -> None:
     """Рекурсивно добавляет в каталог потомков из XML-элемента."""
     for child in element:
         if child.tag == DIR_TAG:
@@ -69,7 +69,7 @@ def _fill_directory(node: VfsNode, element: ET.Element) -> None:
             raise VfsError(f"unexpected element <{child.tag}>")
 
 
-def _get_name(element: ET.Element) -> str:
+def _get_name(element: et.Element) -> str:
     """Возвращает проверенное имя элемента."""
     name = element.get("name")
     if name is None:
@@ -79,7 +79,7 @@ def _get_name(element: ET.Element) -> str:
     return name
 
 
-def _build_file(element: ET.Element) -> VfsNode:
+def _build_file(element: et.Element) -> VfsNode:
     """Создаёт узел-файл из элемента `file`."""
     if len(element):
         raise VfsError(f"<{FILE_TAG}> must not contain elements")
@@ -88,7 +88,7 @@ def _build_file(element: ET.Element) -> VfsNode:
     return VfsNode(name=name, is_dir=False, content=content)
 
 
-def _decode_content(element: ET.Element, name: str) -> bytes:
+def _decode_content(element: et.Element, name: str) -> bytes:
     """Декодирует содержимое файла согласно атрибуту `encoding`."""
     encoding = element.get("encoding", ENC_TEXT)
     text = element.text or ""
